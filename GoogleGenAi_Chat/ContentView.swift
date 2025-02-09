@@ -9,18 +9,22 @@ import SwiftUI
 import GoogleGenerativeAI
 
 struct ContentView: View {
-    @State private var generatedText = ""
+    @State private var generatedText : LocalizedStringKey = ""
     @State private var prompt  = ""//"Explain how AI works"
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
                     Text(generatedText)
+                        
                     TextField(
                         "Enter a question",
                         text: $prompt
                     )
                     .textFieldStyle(.roundedBorder)
+                    .lineLimit(10)
+                    .autocorrectionDisabled()
+                    .onAppear { UITextField.appearance().clearButtonMode = .whileEditing }
                     Button("Generate Text") {
                         Task {
                             do {
@@ -48,9 +52,13 @@ struct ContentView: View {
                                 ])
                                 
                                 let message = prompt //"INSERT_INPUT_HERE"
-                                let response = try await chat.sendMessage(message)
+                                let response = try await chat.sendMessage(
+                                    message
+                                )
                                 
-                                generatedText = response.text ?? "No response received"
+                                let resp = LocalizedStringKey(response.text ?? "No response received")
+                              
+                                generatedText = resp
                             } catch {
                                 print("Error: \(error)")
                                 generatedText = "Error occurred. Please try again."
