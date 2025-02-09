@@ -11,11 +11,18 @@ import GoogleGenerativeAI
 struct ContentView: View {
     @State private var generatedText : LocalizedStringKey = ""
     @State private var prompt  = ""//"Explain how AI works"
+    @State var isLoading = false
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
                     Text(generatedText)
+                    
+                    if isLoading {
+                        ProgressView()
+                           
+                    }
                         
                     TextField(
                         "Enter a question",
@@ -27,6 +34,8 @@ struct ContentView: View {
                     .onAppear { UITextField.appearance().clearButtonMode = .whileEditing }
                     Button("Generate Text") {
                         Task {
+                            
+                            isLoading = true
                             do {
                                 let config = GenerationConfig(
                                     temperature: 1,
@@ -59,9 +68,11 @@ struct ContentView: View {
                                 let resp = LocalizedStringKey(response.text ?? "No response received")
                               
                                 generatedText = resp
+                                isLoading = false
                             } catch {
                                 print("Error: \(error)")
                                 generatedText = "Error occurred. Please try again."
+                                isLoading = false
                             }
                         }
                     }
